@@ -5,14 +5,10 @@ export interface accountantInterface extends Document {
   balance: number;
 }
 
-
-
 @Schema({ timestamps: true })
 export class accountant {
   @Prop({ type: Number })
   balance: number;
 }
-
-
 
 export const accountantSchema = SchemaFactory.createForClass(accountant);

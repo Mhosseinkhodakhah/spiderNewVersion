@@ -1,14 +1,16 @@
 import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { loginDto } from './dto/login.dto';
+import { createInvoiceDto } from './dto/createInvoice.dto';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Post('/charge/:amount')
-  async charge(@Req() req  :any, @Res() res : any , @Param('amount') amount : number){
-    return this.appService.chargeTheAccount(+amount)
+  @Post('/invoice/create')
+  async charge(@Req() req  :any, @Res() res : any , @Body() body : createInvoiceDto){
+    let user = req.user.name
+    return this.appService.chargeTheAccount( user , body)
   }
 
   @Post('/login')
@@ -21,5 +23,9 @@ export class AppController {
     return this.appService.createNewPermision( req , res, body)
   }
 
+  @Get('/token/check')
+  async checkToken(@Req() req  :any, @Res() res : any){
+    return this.appService.checkToken()
+  }
 
 }

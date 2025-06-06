@@ -9,13 +9,15 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { UsersSchema } from './entity/users.entity';
 import { accountantSchema } from './entity/account.entity';
 import { jwtService } from './jwt/jwt.service';
+import { auth } from './auth/auth.middleware';
+import { invoiceSchema } from './entity/invoice.entity';
 
 
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }), MulterModule.register({ dest: './accounting-files' }),
   MongooseModule.forRoot('mongodb+srv://kianlucifer0098:Lucifer25255225@first.9zb5fkd.mongodb.net/?retryWrites=true&w=majority&appName=first'),
-  MongooseModule.forFeature([{name : 'user' , schema : UsersSchema} , {name : 'accountant' , schema : accountantSchema}]),
+  MongooseModule.forFeature([{name : 'user' , schema : UsersSchema},{name : 'invoice' , schema : invoiceSchema} , {name : 'accountant' , schema : accountantSchema}]),
   JwtModule.registerAsync({
     imports: [ConfigModule],
     useFactory: async (configService: ConfigService) => ({
@@ -38,4 +40,10 @@ import { jwtService } from './jwt/jwt.service';
   controllers: [AppController],
   providers: [AppService, jwtService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(auth).exclude('/login').forRoutes(AppController)
+  }
+
+
+}

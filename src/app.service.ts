@@ -203,29 +203,33 @@ export class AppService {
     };
   }
 
-  async getAllInvoices(filter: string , sort : string , user : string , page : number) {
+  async getAllInvoices(
+    filter: string,
+    sort: string,
+    user: string,
+    page: number,
+  ) {
     console.log(filter);
 
-    if (isNaN(+page)){
-      page = 0
-    } 
+    if (isNaN(+page)) {
+      page = 0;
+    }
 
     let invoices = await this.invoiceModel
       .find()
-      .skip(((+page)-1)*10)
+      .skip((+page - 1) * 10)
       .limit(10)
       .populate({ path: 'user', select: ['name'] })
       .populate({ path: 'cause', select: ['causes'] })
-      .select(['type' , 'user' , 'cause' , 'amount' , 'date' , 'time']).sort({'createdAt' : -1})
+      .select(['type', 'user', 'cause', 'amount', 'date', 'time'])
+      .sort({ createdAt: -1 });
 
-    let invoicesCounter = await this.invoiceModel
-      .countDocuments()
-
+    let invoicesCounter = await this.invoiceModel.countDocuments();
 
     return {
       message: 'get all invoices',
       statusCode: 200,
-      data: {invoices , all :invoicesCounter},
+      data: { invoices, all: Math.ceil(invoicesCounter/10) },
     };
   }
 }

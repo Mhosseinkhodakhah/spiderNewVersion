@@ -212,7 +212,7 @@ export class AppService {
 
     let invoices = await this.invoiceModel
       .find()
-      .skip(page*10)
+      .skip(((+page)-1)*10)
       .limit(10)
       .populate({ path: 'user', select: ['name'] })
       .populate({ path: 'cause', select: ['causes'] })

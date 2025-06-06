@@ -6,7 +6,7 @@ import { loginDto } from './dto/login.dto';
 import { Model, Models } from 'mongoose';
 import * as crypto from 'crypto';
 import { jwtService } from './jwt/jwt.service';
-import { invoiceInterface } from './entity/invoice.entity';
+import { invoice, invoiceInterface } from './entity/invoice.entity';
 import { createInvoiceDto } from './dto/createInvoice.dto';
 import { causesInterface } from './entity/causes.entity';
 
@@ -65,7 +65,8 @@ export class AppService {
       await account[0].save();
       let updatedInvoice = await this.invoiceModel
         .findOne(created._id)
-        .populate('cause').populate('user')
+        .populate('cause')
+        .populate('user');
 
       return {
         message: 'deposit successfully done',
@@ -199,6 +200,31 @@ export class AppService {
       message: 'true',
       statusCode: 200,
       data: wallet,
+    };
+  }
+
+  async getAllInvoices(filter: string , sort : string , user : string , page : number) {
+    console.log(filter);
+
+    if (isNaN(+page)){
+      page = 0
+    }
+
+    let invoices = await this.invoiceModel
+      .find()
+      .skip(page*10)
+      .limit(10)
+      .populate({ path: 'user', select: ['name'] })
+      .populate({ path: 'cause', select: ['causes'] });
+
+    let invoicesCounter = await this.invoiceModel
+      .countDocuments()
+
+
+    return {
+      message: 'get all invoices',
+      statusCode: 200,
+      data: {invoices , all :invoicesCounter},
     };
   }
 }

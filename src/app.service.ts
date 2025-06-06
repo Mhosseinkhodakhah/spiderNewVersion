@@ -71,7 +71,7 @@ export class AppService {
       return {
         message: 'deposit successfully done',
         statusCode: 200,
-        data: updatedInvoice,
+        data: null,
       };
     } else if (body.type == 'withdraw') {
       let invoice = new this.invoiceModel({
@@ -103,7 +103,7 @@ export class AppService {
       return {
         message: 'deposit successfully done',
         statusCode: 200,
-        data: updatedInvoice,
+        data: null,
       };
     } else {
       return {
@@ -215,7 +215,8 @@ export class AppService {
       .skip(page*10)
       .limit(10)
       .populate({ path: 'user', select: ['name'] })
-      .populate({ path: 'cause', select: ['causes'] });
+      .populate({ path: 'cause', select: ['causes'] })
+      .select(['type' , 'user' , 'cause' , 'amount' , 'date' , 'time'])
 
     let invoicesCounter = await this.invoiceModel
       .countDocuments()

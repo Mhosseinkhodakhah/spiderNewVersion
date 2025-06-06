@@ -79,7 +79,7 @@ export class AppService {
         error: 'permision denied',
       };
     }
-
+    console.log('user issss >>>> ' , user)
     let token = await this.jwtService.tokenize({name : user.name}, '5M');
     return {
       message: 'permision granted!',

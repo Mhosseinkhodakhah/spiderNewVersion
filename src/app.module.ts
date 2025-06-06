@@ -15,7 +15,7 @@ import { invoiceSchema } from './entity/invoice.entity';
 
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }), MulterModule.register({ dest: './accounting-files' }),
+  imports: [ConfigModule.forRoot({ isGlobal: true, envFilePath: 'config.env' }), MulterModule.register({ dest: './accounting-files' }),
   MongooseModule.forRoot('mongodb+srv://kianlucifer0098:Lucifer25255225@first.9zb5fkd.mongodb.net/?retryWrites=true&w=majority&appName=first'),
   MongooseModule.forFeature([{name : 'user' , schema : UsersSchema},{name : 'invoice' , schema : invoiceSchema} , {name : 'accountant' , schema : accountantSchema}]),
   JwtModule.registerAsync({

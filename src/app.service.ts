@@ -131,7 +131,7 @@ export class AppService {
       };
     }
     console.log('user issss >>>> ', user);
-    let token = await this.jwtService.tokenize({ name: user.name }, '5M');
+    let token = await this.jwtService.tokenize({ name: user.name }, '168D');
     return {
       message: 'permision granted!',
       statusCode: 200,

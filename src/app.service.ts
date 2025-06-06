@@ -208,7 +208,7 @@ export class AppService {
 
     if (isNaN(+page)){
       page = 0
-    }
+    } 
 
     let invoices = await this.invoiceModel
       .find()
@@ -216,7 +216,7 @@ export class AppService {
       .limit(10)
       .populate({ path: 'user', select: ['name'] })
       .populate({ path: 'cause', select: ['causes'] })
-      .select(['type' , 'user' , 'cause' , 'amount' , 'date' , 'time'])
+      .select(['type' , 'user' , 'cause' , 'amount' , 'date' , 'time']).sort({'createdAt' : -1})
 
     let invoicesCounter = await this.invoiceModel
       .countDocuments()

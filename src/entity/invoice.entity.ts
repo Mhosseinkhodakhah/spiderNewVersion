@@ -13,7 +13,7 @@ export interface invoiceInterface extends Document {
 
   time: string;
 
-  cause: string;
+  cause: mongoose.Types.ObjectId;
 
   type: string;
 }
@@ -23,7 +23,7 @@ export class invoice {
   @Prop({ type: Number })
   amount: number;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'users' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'user' })
   user: mongoose.Types.ObjectId;
 
   @Prop({ type: String })
@@ -32,8 +32,8 @@ export class invoice {
   @Prop({ type: String })
   time: string;
 
-  @Prop({ type: String })
-  cause: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'cause' })
+  cause: mongoose.Types.ObjectId;
 
   @Prop({ type: String })
   type: string;

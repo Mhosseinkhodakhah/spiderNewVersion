@@ -28,4 +28,17 @@ export class AppController {
     return this.appService.checkToken()
   }
 
+
+  @Get('cause/all')
+  async getAllCauses(@Req() req  :any, @Res() res : any){
+    return this.appService.getCauses()
+  }
+
+
+  @Get('/reset')
+  async reset(){
+    return this.appService.resetWallet()
+  }
+
+
 }

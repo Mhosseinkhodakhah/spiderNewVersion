@@ -8,69 +8,120 @@ import * as crypto from 'crypto';
 import { jwtService } from './jwt/jwt.service';
 import { invoiceInterface } from './entity/invoice.entity';
 import { createInvoiceDto } from './dto/createInvoice.dto';
+import { causesInterface } from './entity/causes.entity';
 
 @Injectable()
 export class AppService {
   constructor(
     @InjectModel('user') private userModel: Model<UsersInterface>,
-    @InjectModel('accountant') private accountantModel: Model<accountantInterface>,
+    @InjectModel('accountant')
+    private accountantModel: Model<accountantInterface>,
     @InjectModel('invoice') private invoiceModel: Model<invoiceInterface>,
+    @InjectModel('cause') private causeModel: Model<causesInterface>,
     private jwtService: jwtService,
   ) {}
 
-
-  async chargeTheAccount( user : string, body : createInvoiceDto) {
-    let userData = await this.userModel.findOne({name : user})
-
-    if (!userData){
+  async chargeTheAccount(user: string, body: createInvoiceDto) {
+    let userData = await this.userModel.findOne({ name: user });
+    if (!userData) {
       return {
-        message : 'user not found',
-        statusCode : 400,
-        error : 'user Not found ' 
-      }
+        message: 'user not found',
+        statusCode: 400,
+        error: 'user Not found ',
+      };
     }
 
-    let invoice = new this.invoiceModel({
-        amount : body.amount,
-        user : userData._id,
-        date : new Date().toLocaleString('fa-IR').split(',')[0],  
-        time : new Date().toLocaleString('fa-IR').split(',')[1],
-        cause : body.cause,
-        type : 'deposit'
-    })
+    let cause = await this.causeModel.findOne({ causes: body.cause });
 
-    let created = await invoice.save()
+    if (!cause) {
+      cause = await this.causeModel.create({
+        causes: body.cause,
+        invoice: [],
+      });
+    }
 
-    userData.invoices.push(created._id)
+    if (body.type == 'deposit') {
+      let invoice = new this.invoiceModel({
+        amount: body.amount,
+        user: userData._id,
+        date: new Date().toLocaleString('fa-IR').split(',')[0],
+        time: new Date().toLocaleString('fa-IR').split(',')[1],
+        cause: cause._id,
+        type: 'deposit',
+      });
 
-    await userData.save()
+      let created = await invoice.save();
 
-    let account = await this.accountantModel.find()
-    account[0].balance = (+account[0].balance) + (+body.amount)
-    await account[0].save()
+      cause.invoice.push(created._id);
 
-    return {
-      message : 'deposit successfully done',
-      statusCode : 200,
-      data : created
+      await cause.save();
+
+      userData.invoices.push(created._id);
+
+      await userData.save();
+
+      let account = await this.accountantModel.find();
+      account[0].balance = +account[0].balance + +body.amount;
+      await account[0].save();
+      let updatedInvoice = await this.invoiceModel
+        .findOne(created._id)
+        .populate('cause').populate('user')
+
+      return {
+        message: 'deposit successfully done',
+        statusCode: 200,
+        data: updatedInvoice,
+      };
+    } else if (body.type == 'withdraw') {
+      let invoice = new this.invoiceModel({
+        amount: body.amount,
+        user: userData._id,
+        date: new Date().toLocaleString('fa-IR').split(',')[0],
+        time: new Date().toLocaleString('fa-IR').split(',')[1],
+        cause: cause._id,
+        type: 'withdraw',
+      });
+
+      let created = await invoice.save();
+      cause.invoice.push(created._id);
+
+      await cause.save();
+
+      userData.invoices.push(created._id);
+
+      await userData.save();
+
+      let account = await this.accountantModel.find();
+      account[0].balance = +account[0].balance - +body.amount;
+      await account[0].save();
+
+      let updatedInvoice = await this.invoiceModel
+        .findOne(created._id)
+        .populate('cause', 'user');
+
+      return {
+        message: 'deposit successfully done',
+        statusCode: 200,
+        data: updatedInvoice,
+      };
+    } else {
+      return {
+        message: 'wrong type',
+        statusCode: 400,
+        error: 'type is not procecable',
+      };
     }
   }
 
-
-
-
-
-
-
   async login(body: loginDto) {
     let { password } = body;
-    console.log(password , typeof(password));
+    console.log(password, typeof password);
     let secret = 'asdflkzjndf;loiasjdfl;/akdmnfv;oaisdjfgklsda/f';
     const hash = crypto
       .createHmac('sha256', secret)
       .update(password)
       .digest('hex');
-      console.log(hash)
+    console.log(hash);
     let user = await this.userModel.findOne({ password: hash });
     if (!user) {
       return {
@@ -79,8 +130,8 @@ export class AppService {
         error: 'permision denied',
       };
     }
-    console.log('user issss >>>> ' , user)
-    let token = await this.jwtService.tokenize({name : user.name}, '5M');
+    console.log('user issss >>>> ', user);
+    let token = await this.jwtService.tokenize({ name: user.name }, '5M');
     return {
       message: 'permision granted!',
       statusCode: 200,
@@ -88,36 +139,41 @@ export class AppService {
     };
   }
 
+  async getCauses() {
+    let causes = await this.causeModel.find();
+    return {
+      message: 'geting all causes',
+      statusCode: 200,
+      data: causes,
+    };
+  }
 
-  async createNewPermision(req , res , body) {
-    console.log('22223' , body)
+  async createNewPermision(req, res, body) {
+    console.log('22223', body);
 
     let secret = 'asdflkzjndf;loiasjdfl;/akdmnfv;oaisdjfgklsda/f';
     const hash = crypto
-    .createHmac('sha256', secret)
-    .update(body.password)
-    .digest('hex');
+      .createHmac('sha256', secret)
+      .update(body.password)
+      .digest('hex');
 
+    console.log('553', hash);
 
+    let exist = await this.userModel.findOne({
+      $or: [{ name: body.name }, { password: hash }],
+    });
 
-    console.log('553' , hash)
+    console.log(exist);
 
-    let exist = await this.userModel.findOne({$or : [
-      {name : body.name},
-      {password : hash}
-    ]})
-    
-    console.log(exist)
-
-    if (exist){
-      return { 
-        message : 'user already exists',
-        statusCode : 400,
-        error : 'user already exists on databse'
-      }
+    if (exist) {
+      return {
+        message: 'user already exists',
+        statusCode: 400,
+        error: 'user already exists on databse',
+      };
     }
 
-    console.log('33333')
+    console.log('33333');
 
     let user = await this.userModel.create({ name: body.name, password: hash });
     return {
@@ -126,14 +182,23 @@ export class AppService {
       data: user,
     };
   }
-  
 
-  async checkToken(){
-    return{
-      message : 'token validate',
-      statusCode : 200
-    }
+  async checkToken() {
+    return {
+      message: 'token validate',
+      statusCode: 200,
+    };
   }
 
+  async resetWallet() {
+    let wallet = await this.accountantModel.find();
+    wallet[0].balance = 0;
+    await wallet[0].save();
 
+    return {
+      message: 'true',
+      statusCode: 200,
+      data: wallet,
+    };
+  }
 }

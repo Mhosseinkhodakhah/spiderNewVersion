@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, Res, ValidationPipe } from '@nestjs/common';
 import { AppService } from './app.service';
 import { loginDto } from './dto/login.dto';
 import { createInvoiceDto } from './dto/createInvoice.dto';
@@ -14,7 +14,7 @@ export class AppController {
   }
 
   @Post('/login')
-  async login(@Req() req  :any, @Res() res : any , @Body() body : loginDto){
+  async login(@Req() req  :any, @Res() res : any , @Body(new ValidationPipe()) body : loginDto){
     return this.appService.login(body)
   }
 

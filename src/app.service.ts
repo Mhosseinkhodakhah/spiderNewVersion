@@ -13,9 +13,8 @@ import { createInvoiceDto } from './dto/createInvoice.dto';
 export class AppService {
   constructor(
     @InjectModel('user') private userModel: Model<UsersInterface>,
-    @InjectModel('accountant')
-    private accountantModel: Model<accountantInterface>,
-    private invoiceModel: Model<invoiceInterface>,
+    @InjectModel('accountant') private accountantModel: Model<accountantInterface>,
+    @InjectModel('invoice') private invoiceModel: Model<invoiceInterface>,
     private jwtService: jwtService,
   ) {}
 

@@ -264,15 +264,17 @@ export class AppService {
     let hosseinSum = 0
     let elhamSum = 0
     for (let i of elhamAll.invoices){
-      if (i.type == 'withdraw'){
+      if (i.type == 'withdraw') {
         elhamSum -= i.amount
-      
+
+      }
     }
     for (let j of hosseinAll.invoices) {
       if (j.type == 'withdraw') {
         hosseinSum += j.amount
-     
-    }
+
+      }
+        }
     let balance = await this.accountantModel.find()
     console.log(balance[0])
     let all  = await this.invoiceModel.aggregate([{

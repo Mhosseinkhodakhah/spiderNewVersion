@@ -55,4 +55,11 @@ export class AppController {
     console.log(filter , sort , page)
     return this.appService.getAllInvoices(filter , sort , user , page);
   }
+
+  @Get('/all')
+  async getAllSum(@Req() req: any, @Res() res: any){
+    return this.appService.sumWithdraw()
+  }
+
+
 }

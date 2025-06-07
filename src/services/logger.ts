@@ -42,6 +42,6 @@ const prodLogger = {
 }
 
 // export log instance based on the current environment
-const instanceLogger = (process.env.NODE_ENV === 'production') ? prodLogger : devLogger
+const instanceLogger = devLogger 
 
 export const instance = createLogger(instanceLogger)

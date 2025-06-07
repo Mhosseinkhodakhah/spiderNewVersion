@@ -101,7 +101,7 @@ export class AppService {
         .populate('cause', 'user');
 
       return {
-        message: 'deposit successfully done',
+        message: 'withdraw successfully done',
         statusCode: 200,
         data: null,
       };
@@ -196,6 +196,11 @@ export class AppService {
     wallet[0].balance = 0;
     await wallet[0].save();
 
+    let all =await this.invoiceModel.find()
+    await this.invoiceModel.deleteMany()
+
+    await this.causeModel.deleteMany()
+
     return {
       message: 'true',
       statusCode: 200,
@@ -232,4 +237,52 @@ export class AppService {
       data: { invoices, all: Math.ceil(invoicesCounter/10) },
     };
   }
+
+
+  async sumWithdraw(){
+    let elhamAll : any = await this.userModel.findOne({name : 'elham'}).populate('invoices')
+    // let elhamAll = await this.userModel.aggregate([
+    //   {
+    //     $group:{
+    //       _id : "$_id",
+    //       total : {
+    //         $sum : "$amount"
+    //       }
+    //     }
+    //   }
+    // ])
+    if (!elhamAll){
+      return {
+        message : 'user not found!',
+        statusCode : 400,
+        error : 'user not found'
+      }
+    }
+    let hosseinAll : any = await this.userModel.findOne({name : 'hossein'}).populate('invoices')
+    let hosseinSum = 0
+    let elhamSum = 0
+    for (let i of elhamAll.invoices){
+      elhamSum += i.amount
+    }
+    for (let j of hosseinAll.invoices){
+      hosseinSum += j.amount
+    }
+    // console.log(elhamAll)
+    let balance = await this.accountantModel.find()
+    console.log(balance[0])
+    let all  = await this.invoiceModel.aggregate([{
+      $group:{
+        _id : "$itemNumber",
+        total : {$sum : '$amount'}
+      }
+    }])
+    
+    return {
+      message : 'done',
+      statusCode: 200,
+      data : {allExpense : all[0].total , hosseinExpenses : hosseinSum , eliExpenses : elhamSum , balance : balance[0].balance}
+    }
+  }
+
+
 }

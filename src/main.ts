@@ -5,11 +5,7 @@ import { WinstonModule } from 'nest-winston';
 import { instance } from './services/logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule , {
-    logger: WinstonModule.createLogger({
-      instance: instance,
-    }),
-  });
+  const app = await NestFactory.create(AppModule);
   app.useGlobalInterceptors(new ResponseInterceptor())
   await app.listen(process.env.PORT ?? 3000);
 }

@@ -275,17 +275,38 @@ export class AppService {
         }
     let balance = await this.accountantModel.find()
     console.log(balance[0])
-    let all  = await this.invoiceModel.aggregate([{
-      $group:{
-        _id : "$itemNumber",
-        total : {$sum : '$amount'}
+
+    let allInvoices :any = await this.invoiceModel.find()
+    let allExpenses = 0
+    for (let k of allInvoices){
+      if (k.type == 'withdraw'){
+        allExpenses += k.amount
       }
-    }])
-    
+    }
+    // let withdraAll  = await this.invoiceModel.aggregate([{
+    //   $match : {
+    //     type : 'withdraw'
+    //   },
+    //   $group:{
+    //     _id : "$itemNumber",
+        
+    //     total : {$sum : '$amount'}
+    //   }
+    // }])
+    // let depositAll  = await this.invoiceModel.aggregate([{
+    //   $match : {
+    //     property_type : 'type'
+    //   },
+    //   $group:{
+    //     _id : "$itemNumber",
+    //     total : {$sum : '$amount'}
+    //   }
+    // }])
+    // console.log(withdraAll)
     return {
       message : 'done',
       statusCode: 200,
-      data : {allExpense : all[0].total , hosseinExpenses : hosseinSum , eliExpenses : elhamSum , balance : balance[0].balance}
+      data : {allExpense : allExpenses , hosseinExpenses : hosseinSum , eliExpenses : elhamSum , balance : balance[0].balance}
     }
   }
 

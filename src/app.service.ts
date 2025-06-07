@@ -266,16 +266,12 @@ export class AppService {
     for (let i of elhamAll.invoices){
       if (i.type == 'withdraw'){
         elhamSum -= i.amount
-      }else{
-        elhamSum += i.amount
-      }
+      
     }
     for (let j of hosseinAll.invoices) {
       if (j.type == 'withdraw') {
         hosseinSum += j.amount
-      } else {
-        hosseinSum += j.amount
-      }
+     
     }
     let balance = await this.accountantModel.find()
     console.log(balance[0])

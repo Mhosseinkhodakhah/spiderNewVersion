@@ -226,7 +226,7 @@ export class AppService {
       .limit(10)
       .populate({ path: 'user', select: ['name'] })
       .populate({ path: 'cause', select: ['causes'] })
-      .select(['type', 'user', 'cause', 'amount', 'date', 'time'])
+      .select(['type', 'user', 'cause', 'amount', 'createdAt'])
       .sort({ createdAt: -1 });
 
     let invoicesCounter = await this.invoiceModel.countDocuments();

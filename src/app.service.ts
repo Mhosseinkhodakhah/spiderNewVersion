@@ -193,13 +193,25 @@ export class AppService {
 
   async resetWallet() {
     let wallet = await this.accountantModel.find();
-    wallet[0].balance = 0;
-    await wallet[0].save();
+    // wallet[0].balance = 2515538;
+    // await wallet[0].save();
 
-    let all =await this.invoiceModel.find()
-    await this.invoiceModel.deleteMany()
+    let all : any =await this.invoiceModel.find().populate('cause')
+    
+    for (let i of all){
+      if (i.cause.causes == 'taxi' && i.amount == 30000){
+        if (i.type == 'withdraw'){
+          console.log('withdraw' , i.amount)
+          wallet[0].balance = +wallet[0].balance + +i.amount
+        }else{
+          console.log('deposit', i.amount)
+          wallet[0].balance = +wallet[0].balance - +i.amount
+        }
+        await wallet[0].save()
+        await this.invoiceModel.findByIdAndDelete(i._id)
+      }
+    }
 
-    await this.causeModel.deleteMany()
 
     return {
       message: 'true',
@@ -241,16 +253,6 @@ export class AppService {
 
   async sumWithdraw(){
     let elhamAll : any = await this.userModel.findOne({name : 'elham'}).populate('invoices')
-    // let elhamAll = await this.userModel.aggregate([
-    //   {
-    //     $group:{
-    //       _id : "$_id",
-    //       total : {
-    //         $sum : "$amount"
-    //       }
-    //     }
-    //   }
-    // ])
     if (!elhamAll){
       return {
         message : 'user not found!',
@@ -262,12 +264,19 @@ export class AppService {
     let hosseinSum = 0
     let elhamSum = 0
     for (let i of elhamAll.invoices){
-      elhamSum += i.amount
+      if (i.type == 'withdraw'){
+        elhamSum -= i.amount
+      }else{
+        elhamSum += i.amount
+      }
     }
-    for (let j of hosseinAll.invoices){
-      hosseinSum += j.amount
+    for (let j of hosseinAll.invoices) {
+      if (j.type == 'withdraw') {
+        hosseinSum += j.amount
+      } else {
+        hosseinSum += j.amount
+      }
     }
-    // console.log(elhamAll)
     let balance = await this.accountantModel.find()
     console.log(balance[0])
     let all  = await this.invoiceModel.aggregate([{

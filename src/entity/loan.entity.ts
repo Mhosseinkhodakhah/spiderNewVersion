@@ -17,6 +17,8 @@ export interface loanInterface extends Document {
 
     isActive : boolean
 
+    settleMentCount : number
+
 }
 
 @Schema({ timestamps: true })
@@ -41,6 +43,9 @@ export class loan {
 
     @Prop({type : Boolean , default : false})
     settlement : boolean
+    
+    @Prop({type : Number})
+    settleMentCount : number
     
 }
 

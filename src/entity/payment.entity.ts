@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document, mongo } from 'mongoose';
 
-export interface invoiceInterface extends Document {
+export interface paymentInterface extends Document {
 
     _id :mongoose.Types.ObjectId
 
@@ -15,35 +15,29 @@ export interface invoiceInterface extends Document {
 
   cause: mongoose.Types.ObjectId;
 
-  type: string;
+  title: string;
 
-  loan : mongoose.Types.ObjectId;
-
+  payments : mongoose.Types.ObjectId[]
 
 }
 
 @Schema({ timestamps: true })
-export class invoice {
+export class payment {
   @Prop({ type: Number })
   amount: number;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'user' })
   user: mongoose.Types.ObjectId;
-
+    
+  @Prop({type : [mongoose.Schema.Types.ObjectId] , default : []})
+  payments : mongoose.Types.ObjectId[]
+  
   @Prop({ type: String })
   date: string;
 
   @Prop({ type: String })
-  time: string;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'cause' })
-  cause: mongoose.Types.ObjectId;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'loan'  , default : null})
-  loan : mongoose.Types.ObjectId;
-
-  @Prop({ type: String })
-  type: string;
+  title: string;
 }
 
-export const invoiceSchema = SchemaFactory.createForClass(invoice);
+
+export const paymentSchema = SchemaFactory.createForClass(payment);

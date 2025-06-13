@@ -21,7 +21,7 @@ export class AppService {
     @InjectModel('loan') private loanModel: Model<loanInterface>,
     @InjectModel('cause') private causeModel: Model<causesInterface>,
     private jwtService: jwtService,
-  ) {}
+  ) { }
 
   async chargeTheAccount(user: string, body: createInvoiceDto) {
     let userData = await this.userModel.findOne({ name: user });
@@ -65,10 +65,7 @@ export class AppService {
       let account = await this.accountantModel.find();
       account[0].balance = +account[0].balance + +body.amount;
       await account[0].save();
-      let updatedInvoice = await this.invoiceModel
-        .findOne(created._id)
-        .populate('cause')
-        .populate('user');
+      let updatedInvoice = await this.invoiceModel.findOne(created._id).populate('cause').populate('user')
 
       return {
         message: 'deposit successfully done',
@@ -198,14 +195,14 @@ export class AppService {
     // wallet[0].balance = 2515538;
     // await wallet[0].save();
 
-    let all : any =await this.invoiceModel.find().populate('cause')
-    
-    for (let i of all){
-      if (i.cause.causes == 'taxi' && i.amount == 30000){
-        if (i.type == 'withdraw'){
-          console.log('withdraw' , i.amount)
+    let all: any = await this.invoiceModel.find().populate('cause')
+
+    for (let i of all) {
+      if (i.cause.causes == 'taxi' && i.amount == 30000) {
+        if (i.type == 'withdraw') {
+          console.log('withdraw', i.amount)
           wallet[0].balance = +wallet[0].balance + +i.amount
-        }else{
+        } else {
           console.log('deposit', i.amount)
           wallet[0].balance = +wallet[0].balance - +i.amount
         }
@@ -248,29 +245,29 @@ export class AppService {
     return {
       message: 'get all invoices',
       statusCode: 200,
-      data: { invoices, all: Math.ceil(invoicesCounter/10) },
+      data: { invoices, all: Math.ceil(invoicesCounter / 10) },
     };
   }
 
 
-  async sumWithdraw(){
-    let elhamAll : any = await this.userModel.findOne({name : 'elham'}).populate({
-      path : "invoices",
-      populate : {
-        path : 'cause'
+  async sumWithdraw() {
+    let elhamAll: any = await this.userModel.findOne({ name: 'elham' }).populate({
+      path: "invoices",
+      populate: {
+        path: 'cause'
       }
     })
-    if (!elhamAll){
+    if (!elhamAll) {
       return {
-        message : 'user not found!',
-        statusCode : 400,
-        error : 'user not found'
+        message: 'user not found!',
+        statusCode: 400,
+        error: 'user not found'
       }
     }
-    let hosseinAll : any = await this.userModel.findOne({name : 'hossein'}).populate({
-      path : "invoices",
-      populate : {
-        path : 'cause'
+    let hosseinAll: any = await this.userModel.findOne({ name: 'hossein' }).populate({
+      path: "invoices",
+      populate: {
+        path: 'cause'
       }
     })
     let hosseinSum = 0
@@ -279,14 +276,14 @@ export class AppService {
     let hosseinDepo = 0
     let elhamDepo = 0
     let elhamSum = 0
-    for (let i of elhamAll.invoices){
+    for (let i of elhamAll.invoices) {
       if (i.type == 'withdraw') {
         elhamSum += i.amount
       }
-      if (i.type == "deposit"){
+      if (i.type == "deposit") {
         elhamDepo += i.amount
       }
-      if(i.type === "withdraw" && (i.cause.causes.includes("loan") || i.cause.causes.includes("rent"))){
+      if (i.type === "withdraw" && (i.cause.causes.includes("loan") || i.cause.causes.includes("rent"))) {
         elhamLoan += i.amount
       }
     }
@@ -294,20 +291,20 @@ export class AppService {
       if (j.type == 'withdraw') {
         hosseinSum += j.amount
       }
-      if (j.type == "deposit"){
+      if (j.type == "deposit") {
         hosseinDepo += j.amount
       }
-      if(j.type === "withdraw" && (j.cause.causes.includes("loan") || j.cause.causes.includes("rent"))){
+      if (j.type === "withdraw" && (j.cause.causes.includes("loan") || j.cause.causes.includes("rent"))) {
         hosseinLoan += j.amount
       }
     }
     let balance = await this.accountantModel.find()
     console.log(balance[0])
 
-    let allInvoices :any = await this.invoiceModel.find()
+    let allInvoices: any = await this.invoiceModel.find()
     let allExpenses = 0
-    for (let k of allInvoices){
-      if (k.type == 'withdraw'){
+    for (let k of allInvoices) {
+      if (k.type == 'withdraw') {
         allExpenses += k.amount
       }
     }
@@ -317,7 +314,7 @@ export class AppService {
     //   },
     //   $group:{
     //     _id : "$itemNumber",
-        
+
     //     total : {$sum : '$amount'}
     //   }
     // }])
@@ -332,28 +329,79 @@ export class AppService {
     // }])
     // console.log(withdraAll)
     return {
-      message : 'done',
+      message: 'done',
       statusCode: 200,
-      data : {allExpense : allExpenses , hosseinExpenses : hosseinSum , hosseinLoan , elhamLoan , elhamDepo : elhamDepo , hosseinDepo : hosseinDepo , eliExpenses : elhamSum , balance : balance[0].balance}
+      data: { allExpense: allExpenses, hosseinExpenses: hosseinSum, hosseinLoan, elhamLoan, elhamDepo: elhamDepo, hosseinDepo: hosseinDepo, eliExpenses: elhamSum, balance: balance[0].balance }
     }
   }
 
 
-  async createNewLoan(req : any , res : any , body : any){
+  async createNewLoan(req: any, res: any, body: any) {
     let userName = req.user.name
-    let user = await this.userModel.findOne({name : userName})
+    let user = await this.userModel.findOne({ name: userName })
     let newLoan = await this.loanModel.create({
-      amount : body.amount,
-      title : body.title,
-      user : user?._id,
-      date : body.data
+      amount: body.amount,
+      title: body.title,
+      user: user?._id,
+      date: body.data,
+      settleMentCount: body.settleMentCount
     })
     return {
-      message : 'create new loan successfully done',
-      statusCode : 200,
-      data : newLoan
+      message: 'create new loan successfully done',
+      statusCode: 200,
+      data: newLoan
     }
   }
 
 
+  async getAllLoan() {
+    let allLoan = await this.loanModel.find()
+    return {
+      message: 'all loan',
+      statusCode: 200,
+      data: allLoan
+    }
+  }
+
+  async payTheLoan(req: any, res: any, body: any, loanId: string) {
+    let loan = await this.loanModel.findById(loanId)
+    let user = await this.userModel.findOne({
+      name: req.user.name
+    })
+    if (!loan) {
+      return {
+        message: 'loan not found',
+        statusCode: 400,
+        error: 'loan not found'
+      }
+    }
+
+    let cause = await this.causeModel.findOne({
+      causes: 'loan'
+    })
+
+    let invoice = {
+      amount: loan.amount,
+      user: user?._id,
+      date: new Date().toLocaleString('fa-IR').split(",")[0],
+      time: new Date().toLocaleString("fa-IR").split(",")[1],
+      cause: cause?._id,
+      type: "withdraw",
+      loan: loan._id
+    }
+
+    let createdInvoice = await this.invoiceModel.create(invoice)
+
+    loan.payments.push(createdInvoice._id)
+
+    loan.settleMentCount -= 1
+
+    await loan.save()
+
+    return {
+      message: 'pay the specific loan successfully done',
+      statusCode: 200,
+      data: loan
+    }
+  }
 }

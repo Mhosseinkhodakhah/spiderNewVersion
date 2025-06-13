@@ -62,9 +62,19 @@ export class AppController {
   }
 
 
-  @Get("/loan/create")
+  @Post("/loan/create")
   async createNewLoan(@Req() req: any, @Res() res: any , @Body() body : any){
-    
+      await this.appService.createNewLoan(req , res , body)
+  }
+
+  @Get('/loan/all')
+  async getAllLoan(@Req() req: any, @Res() res: any){
+    await this.appService.getAllLoan()
+  }
+
+  @Post("/loan/pay/:loanId")
+  async payTheLoan(@Req() req: any, @Res() res: any , @Body() body :any , @Param("loanId") loanId : string ){
+    await this.appService.payTheLoan(req , res , body , loanId)
   }
 
 

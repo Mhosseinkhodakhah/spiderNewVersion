@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Query, Req, Res, ValidationPipe } f
 import { AppService } from './app.service';
 import { loginDto } from './dto/login.dto';
 import { createInvoiceDto } from './dto/createInvoice.dto';
+import { newLoanDto } from './dto/createNewLoan.dto';
 
 @Controller()
 export class AppController {
@@ -63,7 +64,7 @@ export class AppController {
 
 
   @Post("/loan/create")
-  async createNewLoan(@Req() req: any, @Res() res: any , @Body() body : any){
+  async createNewLoan(@Req() req: any, @Res() res: any , @Body() body : newLoanDto){
       await this.appService.createNewLoan(req , res , body)
   }
 

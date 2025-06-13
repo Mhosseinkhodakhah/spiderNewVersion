@@ -10,6 +10,7 @@ import { invoice, invoiceInterface } from './entity/invoice.entity';
 import { createInvoiceDto } from './dto/createInvoice.dto';
 import { causesInterface } from './entity/causes.entity';
 import { loanInterface } from './entity/loan.entity';
+import { newLoanDto } from './dto/createNewLoan.dto';
 
 @Injectable()
 export class AppService {
@@ -336,14 +337,15 @@ export class AppService {
   }
 
 
-  async createNewLoan(req: any, res: any, body: any) {
+
+  async createNewLoan(req: any, res: any, body: newLoanDto) {
     let userName = req.user.name
     let user = await this.userModel.findOne({ name: userName })
     let newLoan = await this.loanModel.create({
       amount: body.amount,
       title: body.title,
       user: user?._id,
-      date: body.data,
+      date: body.date,
       settleMentCount: body.settleMentCount
     })
     return {
@@ -380,7 +382,7 @@ export class AppService {
       causes: 'loan'
     })
 
-    let invoice = {
+    let invoice =  {
       amount: loan.amount,
       user: user?._id,
       date: new Date().toLocaleString('fa-IR').split(",")[0],

@@ -9,6 +9,7 @@ import { jwtService } from './jwt/jwt.service';
 import { invoice, invoiceInterface } from './entity/invoice.entity';
 import { createInvoiceDto } from './dto/createInvoice.dto';
 import { causesInterface } from './entity/causes.entity';
+import { loanInterface } from './entity/loan.entity';
 
 @Injectable()
 export class AppService {
@@ -17,6 +18,7 @@ export class AppService {
     @InjectModel('accountant')
     private accountantModel: Model<accountantInterface>,
     @InjectModel('invoice') private invoiceModel: Model<invoiceInterface>,
+    @InjectModel('loan') private loanModel: Model<loanInterface>,
     @InjectModel('cause') private causeModel: Model<causesInterface>,
     private jwtService: jwtService,
   ) {}
@@ -252,7 +254,12 @@ export class AppService {
 
 
   async sumWithdraw(){
-    let elhamAll : any = await this.userModel.findOne({name : 'elham'}).populate('invoices')
+    let elhamAll : any = await this.userModel.findOne({name : 'elham'}).populate({
+      path : "invoices",
+      populate : {
+        path : 'cause'
+      }
+    })
     if (!elhamAll){
       return {
         message : 'user not found!',
@@ -330,5 +337,23 @@ export class AppService {
       data : {allExpense : allExpenses , hosseinExpenses : hosseinSum , hosseinLoan , elhamLoan , elhamDepo : elhamDepo , hosseinDepo : hosseinDepo , eliExpenses : elhamSum , balance : balance[0].balance}
     }
   }
+
+
+  async createNewLoan(req : any , res : any , body : any){
+    let userName = req.user.name
+    let user = await this.userModel.findOne({name : userName})
+    let newLoan = await this.loanModel.create({
+      amount : body.amount,
+      title : body.title,
+      user : user?._id,
+      date : body.data
+    })
+    return {
+      message : 'create new loan successfully done',
+      statusCode : 200,
+      data : newLoan
+    }
+  }
+
 
 }

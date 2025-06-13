@@ -62,4 +62,10 @@ export class AppController {
   }
 
 
+  @Get("/loan/create")
+  async createNewLoan(@Req() req: any, @Res() res: any , @Body() body : any){
+    
+  }
+
+
 }

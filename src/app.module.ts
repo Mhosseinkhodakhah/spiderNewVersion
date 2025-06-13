@@ -12,13 +12,14 @@ import { jwtService } from './jwt/jwt.service';
 import { auth } from './auth/auth.middleware';
 import { invoiceSchema } from './entity/invoice.entity';
 import { causesSchema } from './entity/causes.entity';
+import { loanSchema } from './entity/loan.entity';
 
 
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true, envFilePath: 'config.env' }), MulterModule.register({ dest: './accounting-files' }),
   MongooseModule.forRoot('mongodb+srv://kianlucifer0098:Lucifer25255225@first.9zb5fkd.mongodb.net/?retryWrites=true&w=majority&appName=first'),
-  MongooseModule.forFeature([{name : 'user' , schema : UsersSchema},{name : 'cause' , schema : causesSchema},{name : 'invoice' , schema : invoiceSchema} , {name : 'accountant' , schema : accountantSchema}]),
+  MongooseModule.forFeature([{name : 'user' , schema : UsersSchema},{name : 'loan' , schema : loanSchema},{name : 'cause' , schema : causesSchema},{name : 'invoice' , schema : invoiceSchema} , {name : 'accountant' , schema : accountantSchema}]),
   JwtModule.registerAsync({
     imports: [ConfigModule],
     useFactory: async (configService: ConfigService) => ({

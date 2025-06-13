@@ -71,7 +71,7 @@ export class AppService {
       return {
         message: 'deposit successfully done',
         statusCode: 200,
-        data: null,
+        data: updatedInvoice,
       };
     } else if (body.type == 'withdraw') {
       let invoice = new this.invoiceModel({
@@ -103,7 +103,7 @@ export class AppService {
       return {
         message: 'withdraw successfully done',
         statusCode: 200,
-        data: null,
+        data: updatedInvoice,
       };
     } else {
       return {
@@ -260,19 +260,40 @@ export class AppService {
         error : 'user not found'
       }
     }
-    let hosseinAll : any = await this.userModel.findOne({name : 'hossein'}).populate('invoices')
+    let hosseinAll : any = await this.userModel.findOne({name : 'hossein'}).populate({
+      path : "invoices",
+      populate : {
+        path : 'cause'
+      }
+    })
     let hosseinSum = 0
+    let hosseinLoan = 0
+    let elhamLoan = 0
+    let hosseinDepo = 0
+    let elhamDepo = 0
     let elhamSum = 0
     for (let i of elhamAll.invoices){
       if (i.type == 'withdraw') {
         elhamSum += i.amount
+      }
+      if (i.type == "deposit"){
+        elhamDepo += i.amount
+      }
+      if(i.type === "withdraw" && (i.cause.causes.includes("loan") || i.cause.causes.includes("rent"))){
+        elhamLoan += i.amount
       }
     }
     for (let j of hosseinAll.invoices) {
       if (j.type == 'withdraw') {
         hosseinSum += j.amount
       }
-        }
+      if (j.type == "deposit"){
+        hosseinDepo += j.amount
+      }
+      if(j.type === "withdraw" && (j.cause.causes.includes("loan") || j.cause.causes.includes("rent"))){
+        hosseinLoan += j.amount
+      }
+    }
     let balance = await this.accountantModel.find()
     console.log(balance[0])
 
@@ -306,9 +327,8 @@ export class AppService {
     return {
       message : 'done',
       statusCode: 200,
-      data : {allExpense : allExpenses , hosseinExpenses : hosseinSum , eliExpenses : elhamSum , balance : balance[0].balance}
+      data : {allExpense : allExpenses , hosseinExpenses : hosseinSum , hosseinLoan , elhamLoan , elhamDepo : elhamDepo , hosseinDepo : hosseinDepo , eliExpenses : elhamSum , balance : balance[0].balance}
     }
   }
-
 
 }

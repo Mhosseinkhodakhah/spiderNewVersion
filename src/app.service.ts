@@ -95,9 +95,9 @@ export class AppService {
       account[0].balance = +account[0].balance - +body.amount;
       await account[0].save();
 
-      let updatedInvoice = await this.invoiceModel
-        .findOne(created._id)
-        .populate('cause', 'user');
+      let updatedInvoice = await this.invoiceModel.findOne(created._id)
+        .populate('cause')
+        .populate('user')
 
       return {
         message: 'withdraw successfully done',
